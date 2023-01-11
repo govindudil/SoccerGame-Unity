@@ -17,8 +17,115 @@ public class Ball : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+<<<<<<< Updated upstream
         playerBallPosition = transformPlayer.Find("Geometry").Find("BallLocation");
         scriptPlayer = transformPlayer.GetComponent<Player>();
+=======
+        timePassedBall = Time.time;
+        Game.Instance.PassDestinationPlayer = player.FellowPlayer;
+    }
+
+    public void PutOnGround()
+    {
+        transform.position = new Vector3(transform.position.x, BALL_GROUND_POSITION_Y, transform.position.z);
+    }
+    public void PutOnCenterSpot()
+    {
+        transform.position = new Vector3(0f, BALL_GROUND_POSITION_Y, 0f);
+    }
+
+    private void TakeThrowIn()
+    {
+        if (Game.Instance.PlayerWithBall != null)
+        {
+            Game.Instance.PlayerWithBall.HasBall = false;
+            Game.Instance.SetPlayerWithBall(null);
+        }
+        transform.position = ballOutOfFieldposition;
+        rigidbody.velocity = Vector3.zero;
+        rigidbody.angularVelocity = Vector3.zero;
+        Player player = Game.Instance.GetPlayerToThrowIn();
+        player.SetPosition(new Vector3(ballOutOfFieldposition.x, player.transform.position.y, ballOutOfFieldposition.z));
+        // Look in the directon of the field. Otherwise the ball will be out of field again.
+        player.transform.LookAt(Game.Instance.KickOffPosition);
+        Game.Instance.SetPlayerWithBall(player);
+        if (isThrowIn)
+        {
+            player.TakeThrowIn = true;
+        }
+        else
+        {
+            player.TakeFreeKick = true;
+        }
+        // move players that are too close
+        Game.Instance.SetMinimumDistanceOtherPlayers(player);
+    }
+
+    private void CheckBallOutOfField()
+    {
+        // ball out of field
+        if (transform.position.z < Game.FIELD_BOUNDARY_LOWER_Z)
+        {
+            soundWhistle.Play();
+            isThrowIn = true;
+            ballOutOfFieldTimeOut = 1.0f;
+            ballOutOfFieldposition = new Vector3(transform.position.x, BALL_GROUND_POSITION_Y, Game.FIELD_BOUNDARY_LOWER_Z);
+        }
+        if (transform.position.z > Game.FIELD_BOUNDARY_UPPER_Z)
+        {
+            soundWhistle.Play();
+            isThrowIn = true;
+            ballOutOfFieldTimeOut = 1.0f;
+            ballOutOfFieldposition = new Vector3(transform.position.x, BALL_GROUND_POSITION_Y, Game.FIELD_BOUNDARY_UPPER_Z);
+        }
+
+        if (transform.position.x < Game.FIELD_BOUNDARY_LOWER_X)
+        {
+            soundWhistle.Play();
+            isThrowIn = false;
+            ballOutOfFieldTimeOut = 1.0f;
+            if (Game.Instance.TeamLastTouched == 0)
+            {
+                // goal kick
+                ballOutOfFieldposition = new Vector3(-29.56f, BALL_GROUND_POSITION_Y, -4.84f);
+            }
+            else
+            {
+                // corner
+                if (transform.position.z > 0)
+                {
+                    ballOutOfFieldposition = new Vector3(Game.FIELD_BOUNDARY_LOWER_X, BALL_GROUND_POSITION_Y, Game.FIELD_BOUNDARY_UPPER_Z);
+                }
+                else
+                {
+                    ballOutOfFieldposition = new Vector3(Game.FIELD_BOUNDARY_LOWER_X, BALL_GROUND_POSITION_Y, Game.FIELD_BOUNDARY_LOWER_Z);
+                }
+            }
+        }
+        if (transform.position.x > Game.FIELD_BOUNDARY_UPPER_X)
+        {
+            soundWhistle.Play();
+            isThrowIn = false;
+            ballOutOfFieldTimeOut = 1.0f;
+            if (Game.Instance.TeamLastTouched == 1)
+            {
+                // goal kick
+                ballOutOfFieldposition = new Vector3(29.432f, BALL_GROUND_POSITION_Y, 4.76f);
+            }
+            else
+            {
+                // corner
+                if (transform.position.z > 0)
+                {
+                    ballOutOfFieldposition = new Vector3(Game.FIELD_BOUNDARY_UPPER_X, BALL_GROUND_POSITION_Y, Game.FIELD_BOUNDARY_UPPER_Z);
+                }
+                else
+                {
+                    ballOutOfFieldposition = new Vector3(Game.FIELD_BOUNDARY_UPPER_X, BALL_GROUND_POSITION_Y, Game.FIELD_BOUNDARY_LOWER_Z);
+                }
+            }
+        }
+>>>>>>> Stashed changes
     }
 
     // Update is called once per frame
